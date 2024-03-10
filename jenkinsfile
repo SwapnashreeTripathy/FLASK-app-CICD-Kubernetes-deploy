@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+
+    environment{
+        GITHUB_URL = 'https://github.com/UnpredictablePrashant/FlaskTest.git'
+        GIT_BRANCH = 'main'
+    }
+
+
+    stages {
+        
+        stage('Welcome') {
+            steps{
+                echo 'Welcome to Flasktest!!'
+            }
+        }
+
+        stage('cloning Repo') {
+            steps{
+                git branch: env.GIT_BRANCH, url: env.GITHUB_URL
+            }
+        }
+
+
+        stage('Install Dependencies') {
+            steps{
+                script{
+                    sh 'pip install -r requirment.txt'
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps{
+                script{
+                    // sh 'python -m unittest test_app.py'
+                    def res= sh(script: 'python test_app.py', returnStatus: true)
+                    if res == 0 {
+                        echo 'Test suucessfull!'
+                    } else{
+                        error 'Tests failed'
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker') {
+            when {
+                expression {
+                    currentBuild.result == 'SUCCESS'
+                }
+            }
+            steps{
+                script{
+                    sh 'docker build -t flaskapp -f dockerfile .'
+                }
+            }
+        }
+
+    }
+}
