@@ -21,11 +21,11 @@ pipeline {
             }
         }
 
-
-        stage('Install Dependencies') {
+        // Install Dependencies as per requirements.txt , so that we can run test.py file on worker node of Jenkins.
+        stage('Install Dependencies') {   
             steps{
                 script{
-                    sh 'pip install -r requirment.txt'
+                    sh 'pip install -r requirements.txt'
                 }
             }
         }
@@ -33,7 +33,7 @@ pipeline {
         stage('Run Tests') {
             steps{
                 script{
-                    // sh 'python -m unittest test_app.py'
+                    // sh 'python3 -m unittest test_app.py'
                     def res= sh(script: 'python test_app.py', returnStatus: true)
                     if res == 0 {
                         echo 'Test suucessfull!'
